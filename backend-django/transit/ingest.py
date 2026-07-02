@@ -59,8 +59,11 @@ def ingest_vehicles():
         stop_data = v["relationships"].get("stop", {}).get("data")
         stop_id = stop_data["id"] if stop_data else ""
 
+        trip_data = v["relationships"].get("trip", {}).get("data")
+        trip_id = trip_data["id"] if trip_data else ""
         VehicleSnapshot.objects.create(
             vehicle_id=v["id"],
+            trip_id=trip_id,
             route=route,
             stop_id=stop_id,
             current_status=attrs.get("current_status", ""),

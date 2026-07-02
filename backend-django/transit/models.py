@@ -26,6 +26,7 @@ class Stop(models.Model):
 class VehicleSnapshot(models.Model):
     """One observation of one vehicle at one moment. Time-series — grows forever."""
     vehicle_id = models.CharField(max_length=64, db_index=True)
+    trip_id = models.CharField(max_length=64, blank=True, db_index=True)    
     route = models.ForeignKey(Route, on_delete=models.CASCADE, related_name="snapshots")
     stop_id = models.CharField(max_length=64, blank=True)  # plain text, not FK (see design note)
     current_status = models.CharField(max_length=32)
