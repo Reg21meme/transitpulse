@@ -1,3 +1,8 @@
-from django.shortcuts import render
+from rest_framework import generics
+from .models import Stop
+from .serializers import StopSerializer
 
-# Create your views here.
+
+class StopListView(generics.ListAPIView):
+    queryset = Stop.objects.all()
+    serializer_class = StopSerializer
