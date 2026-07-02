@@ -4,6 +4,7 @@ from zoneinfo import ZoneInfo
 from .models import VehicleSnapshot, Prediction
 
 BOSTON_TZ = ZoneInfo("America/New_York")
+DEFAULT_THRESHOLD_MINUTES = 2.0
 
 
 def get_actual_arrivals():
@@ -110,7 +111,6 @@ def aggregate_by_stop(delays):
     ]
     return sorted(result, key=lambda x: x["avg_delay_minutes"], reverse=True)
 
-
 def aggregate_by_hour(delays):
     """Average delay grouped by hour of day (Boston time). Returns list sorted by hour."""
     groups = defaultdict(list)
@@ -127,3 +127,36 @@ def aggregate_by_hour(delays):
         for hour, vals in sorted(groups.items())
     ]
     return result
+
+
+def reliability_overall(delays, threshold=DEFAULT_THRESHOLD_MINUTES):
+    """% of arrivals within `threshold` minutes of their original prediction."""
+    total = len(delays)
+    if total == 0:
+        return {"count": 0, "on_time": 0, "reliability_pct": None, "threshold": threshold}
+    on_time = sum(1 for d in delays if abs(d["delay_minutes"]) <= threshold)
+    return {
+        "count": total,
+        "on_time": on_time,
+        "reliability_pct": round(100 * on_time / total, 1),
+        "threshold": threshold,
+    }
+
+
+def reliability_by_line(delays, threshold=DEFAULT_THRESHOLD_MINUTES):
+    """Reliability % grouped by route, most reliable first."""
+    groups = defaultdict(list)
+    for d in delays:
+        groups[d["route_id"]].append(d["delay_minutes"])
+
+    result = []
+    for route_id, vals in groups.items():
+        total = len(vals)
+        on_time = sum(1 for v in vals if abs(v) <= threshold)
+        result.append({
+            "route_id": route_id,
+            "count": total,
+            "on_time": on_time,
+            "reliability_pct": round(100 * on_time / total, 1),
+        })
+    return sorted(result, key=lambda x: x["reliability_pct"], reverse=True)
