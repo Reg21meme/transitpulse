@@ -2,7 +2,7 @@ import os
 import requests
 from datetime import datetime
 from dotenv import load_dotenv
-from .models import Route, VehicleSnapshot
+from .models import Route, VehicleSnapshot, Prediction
 
 load_dotenv(os.path.join(os.path.dirname(__file__), "..", "..", ".env"))
 API_KEY = os.getenv("MBTA_API_KEY")
@@ -46,14 +46,12 @@ def ingest_vehicles():
         attrs = v["attributes"]
         route_data = v["relationships"]["route"]["data"]
 
-        # Skip records missing the data we need
         if not route_data or attrs.get("latitude") is None:
             skipped += 1
             continue
 
-        route_id = route_data["id"]
         try:
-            route = Route.objects.get(route_id=route_id)
+            route = Route.objects.get(route_id=route_data["id"])
         except Route.DoesNotExist:
             skipped += 1
             continue
@@ -77,8 +75,66 @@ def ingest_vehicles():
     return saved, skipped
 
 
+def ingest_predictions():
+    """Fetch current predictions and save a row for each."""
+    url = f"{BASE_URL}/predictions"
+    params = {"filter[route]": ",".join(SUBWAY_ROUTES), "api_key": API_KEY}
+    resp = requests.get(url, params=params, timeout=10)
+    resp.raise_for_status()
+
+    saved = 0
+    skipped = 0
+    for p in resp.json()["data"]:
+        attrs = p["attributes"]
+        rels = p["relationships"]
+        route_data = rels.get("route", {}).get("data")
+
+        if not route_data:
+            skipped += 1
+            continue
+
+        try:
+            route = Route.objects.get(route_id=route_data["id"])
+        except Route.DoesNotExist:
+            skipped += 1
+            continue
+
+        stop_data = rels.get("stop", {}).get("data")
+        stop_id = stop_data["id"] if stop_data else ""
+
+        trip_data = rels.get("trip", {}).get("data")
+        trip_id = trip_data["id"] if trip_data else ""
+
+        arrival = attrs.get("arrival_time")
+        departure = attrs.get("departure_time")
+
+        # Skip predictions with no arrival time — useless for delay calc
+        if arrival is None:
+            skipped += 1
+            continue
+
+        Prediction.objects.create(
+            route=route,
+            stop_id=stop_id,
+            trip_id=trip_id,
+            direction_id=attrs.get("direction_id"),
+            arrival_time=datetime.fromisoformat(arrival),
+            departure_time=datetime.fromisoformat(departure) if departure else None,
+        )
+        saved += 1
+
+    return saved, skipped
+
+
 def run_ingestion():
-    """Full ingestion pass: ensure routes exist, then save vehicle snapshots."""
+    """Full pass: ensure routes, then save vehicle snapshots and predictions."""
     routes = ensure_routes()
-    saved, skipped = ingest_vehicles()
-    return routes, saved, skipped
+    v_saved, v_skipped = ingest_vehicles()
+    p_saved, p_skipped = ingest_predictions()
+    return {
+        "routes": routes,
+        "vehicles_saved": v_saved,
+        "vehicles_skipped": v_skipped,
+        "predictions_saved": p_saved,
+        "predictions_skipped": p_skipped,
+    }
