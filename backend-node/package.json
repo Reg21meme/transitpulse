@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-"scripts": {
+  "scripts": {
     "dev": "tsx watch src/server.ts"
   },
   "keywords": [],
@@ -11,6 +11,7 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "dotenv": "^17.4.2",
     "ws": "^8.21.0"
   },
   "devDependencies": {
