@@ -1,5 +1,6 @@
 import { WebSocketServer, WebSocket } from "ws";
 import { startMbtaPolling, Vehicle } from "./mbtaStream.js";
+import { broadcastVehicles } from "./broadcast.js";
 
 const PORT = 8081;
 const wss = new WebSocketServer({ port: PORT });
@@ -12,7 +13,8 @@ wss.on("connection", (socket: WebSocket) => {
   });
 });
 
-// For now: just log how many trains we fetched each cycle
+// Every poll cycle, broadcast the fresh vehicles to all connected clients
 startMbtaPolling((vehicles: Vehicle[]) => {
-  console.log(`Fetched ${vehicles.length} vehicles. Sample:`, vehicles[0]);
+  const sent = broadcastVehicles(wss, vehicles);
+  console.log(`Broadcast ${vehicles.length} vehicles to ${sent} client(s).`);
 });
