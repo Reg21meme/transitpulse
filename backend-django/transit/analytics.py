@@ -160,3 +160,22 @@ def reliability_by_line(delays, threshold=DEFAULT_THRESHOLD_MINUTES):
             "reliability_pct": round(100 * on_time / total, 1),
         })
     return sorted(result, key=lambda x: x["reliability_pct"], reverse=True)
+
+def aggregate_by_line_hour(delays):
+    """Average delay grouped by (route_id, hour of day, Boston time).
+    Flat list; frontend pivots into a line x hour grid."""
+    groups = defaultdict(list)
+    for d in delays:
+        hour = d["actual"].astimezone(BOSTON_TZ).hour
+        groups[(d["route_id"], hour)].append(d["delay_minutes"])
+
+    result = [
+        {
+            "route_id": route_id,
+            "hour": hour,
+            "count": len(vals),
+            "avg_delay_minutes": round(mean(vals), 2),
+        }
+        for (route_id, hour), vals in groups.items()
+    ]
+    return sorted(result, key=lambda x: (x["route_id"], x["hour"]))

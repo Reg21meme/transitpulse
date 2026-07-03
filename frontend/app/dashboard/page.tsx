@@ -2,15 +2,18 @@
 
 import { useEffect, useState } from "react";
 import ReliabilityChart from "@/components/ReliabilityChart";
+import DelayHeatmap from "@/components/DelayHeatmap";
 import {
   getReliability,
   getDelaysByLine,
   getDelaysByStop,
   getDelaysByHour,
+  getDelaysByLineHour,
   type ReliabilityResponse,
   type DelayByLine,
   type DelayByStop,
   type DelayByHour,
+  type DelayByLineHour,
 } from "@/lib/api";
 
 export default function DashboardPage() {
@@ -18,6 +21,7 @@ export default function DashboardPage() {
   const [byLine, setByLine] = useState<DelayByLine[]>([]);
   const [byStop, setByStop] = useState<DelayByStop[]>([]);
   const [byHour, setByHour] = useState<DelayByHour[]>([]);
+  const [byLineHour, setByLineHour] = useState<DelayByLineHour[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,17 +30,19 @@ export default function DashboardPage() {
 
     async function load() {
       try {
-        const [rel, line, stop, hour] = await Promise.all([
+        const [rel, line, stop, hour, lineHour] = await Promise.all([
           getReliability(),
           getDelaysByLine(),
           getDelaysByStop(),
           getDelaysByHour(),
+          getDelaysByLineHour(),
         ]);
         if (cancelled) return;
         setReliability(rel);
         setByLine(line);
         setByStop(stop);
         setByHour(hour);
+        setByLineHour(lineHour);
       } catch (e) {
         if (!cancelled) {
           setError(e instanceof Error ? e.message : "Unknown error");
@@ -111,6 +117,13 @@ export default function DashboardPage() {
             ]) ?? []}
           />
         </details>
+      </section>
+
+      {/* Delay heatmap */}
+      <section className="mt-8">
+        <h2 className="text-lg font-semibold text-white">Delay heatmap (line × hour, Boston time)</h2>
+        <p className="text-xs text-neutral-500">Average delay per line by hour of day. Hover a cell for detail.</p>
+        <DelayHeatmap data={byLineHour} />
       </section>
 
       {/* Avg delay by line */}

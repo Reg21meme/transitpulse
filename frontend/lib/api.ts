@@ -53,6 +53,9 @@ async function getJSON<T>(path: string): Promise<T> {
   return (await res.json()) as T;
 }
 
+export const getDelaysByLineHour = () =>
+  getJSON<DelayByLineHour[]>("/analytics/delays/by-line-hour/");
+
 // ---- Endpoint functions ----
 
 export const getReliability = () =>
@@ -66,3 +69,9 @@ export const getDelaysByStop = () =>
 
 export const getDelaysByHour = () =>
   getJSON<DelayByHour[]>("/analytics/delays/by-hour/");
+export interface DelayByLineHour {
+  route_id: string;
+  hour: number;
+  count: number;
+  avg_delay_minutes: number;
+}

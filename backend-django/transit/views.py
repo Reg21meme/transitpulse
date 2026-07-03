@@ -37,3 +37,8 @@ def delays_by_stop_view(request):
 def delays_by_hour_view(request):
     delays = analytics.compute_delays()
     return Response(analytics.aggregate_by_hour(delays))
+
+@api_view(["GET"])
+def delays_by_line_hour_view(request):
+    delays = analytics.compute_delays()
+    return Response(analytics.aggregate_by_line_hour(delays))
