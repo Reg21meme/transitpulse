@@ -13,7 +13,7 @@ function routeColor(routeId: string): string {
   return "#888888";
 }
 
-const SPEED_DEG_PER_MS = 0.00000008;
+const SPEED_DEG_PER_MS = 0.00000013;
 
 interface Anim {
   path: Point[];
