@@ -8,13 +8,14 @@ config({ path: join(__dirname, "..", "..", ".env") });
 const API_KEY = process.env.MBTA_API_KEY;
 const BASE_URL = "https://api-v3.mbta.com";
 const SUBWAY_ROUTES = ["Red", "Orange", "Blue", "Green-B", "Green-C", "Green-D", "Green-E"];
-const POLL_INTERVAL_MS = 4000;
+const POLL_INTERVAL_MS = 1500;
 
 // The shape of one cleaned-up vehicle we care about
 export interface Vehicle {
   id: string;
   routeId: string;
   tripId: string;
+  stopId: string;
   status: string;
   latitude: number;
   longitude: number;
@@ -44,6 +45,7 @@ async function fetchVehicles(): Promise<Vehicle[]> {
       id: v.id,
       routeId: routeData.id,
       tripId: v.relationships?.trip?.data?.id ?? "",
+      stopId: v.relationships?.stop?.data?.id ?? "",
       status: attrs.current_status ?? "",
       latitude: attrs.latitude,
       longitude: attrs.longitude,

@@ -24,3 +24,14 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.leaflet-control-attribution {
+  background: rgba(0, 0, 0, 0.4) !important;
+  color: #c7c5c5 !important;
+  font-size: 9px !important;
+  padding: 1px 5px !important;
+}
+
+.leaflet-control-attribution a {
+  color: #c7c5c5 !important;
+}
