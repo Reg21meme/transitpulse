@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import ReliabilityChart from "@/components/ReliabilityChart";
 import {
   getReliability,
   getDelaysByLine,
@@ -73,7 +74,7 @@ export default function DashboardPage() {
     <main className="min-h-screen bg-neutral-950 p-8 text-neutral-200">
       <h1 className="text-2xl font-bold text-white">Reliability Dashboard</h1>
       <p className="mt-1 text-sm text-neutral-500">
-        Raw analytics shell — charts land in the next sessions.
+        MBTA rapid-transit reliability, computed from live arrival data.
       </p>
 
       {/* Overall reliability */}
@@ -95,15 +96,21 @@ export default function DashboardPage() {
       {/* Reliability by line */}
       <section className="mt-8">
         <h2 className="text-lg font-semibold text-white">Reliability by line</h2>
-        <Table
-          headers={["Route", "Reliability %", "On time", "Count"]}
-          rows={reliability?.by_line.map((r) => [
-            r.route_id,
-            `${r.reliability_pct}%`,
-            r.on_time.toLocaleString(),
-            r.count.toLocaleString(),
-          ]) ?? []}
-        />
+        <ReliabilityChart data={reliability?.by_line ?? []} />
+        <details className="mt-4">
+          <summary className="cursor-pointer text-sm text-neutral-500 hover:text-neutral-300">
+            Show raw numbers
+          </summary>
+          <Table
+            headers={["Route", "Reliability %", "On time", "Count"]}
+            rows={reliability?.by_line.map((r) => [
+              r.route_id,
+              `${r.reliability_pct}%`,
+              r.on_time.toLocaleString(),
+              r.count.toLocaleString(),
+            ]) ?? []}
+          />
+        </details>
       </section>
 
       {/* Avg delay by line */}
