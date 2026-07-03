@@ -1,8 +1,11 @@
 import { WebSocketServer, WebSocket } from "ws";
 import { Vehicle } from "./mbtaStream.js";
 
-// Send the given vehicles to every connected client as a JSON message.
+// Cache the most recent vehicles so new clients get data instantly.
+let lastVehicles: Vehicle[] = [];
+
 export function broadcastVehicles(wss: WebSocketServer, vehicles: Vehicle[]) {
+  lastVehicles = vehicles; // remember for new clients
   const message = JSON.stringify({
     type: "vehicles",
     count: vehicles.length,
@@ -11,11 +14,20 @@ export function broadcastVehicles(wss: WebSocketServer, vehicles: Vehicle[]) {
 
   let sent = 0;
   for (const client of wss.clients) {
-    // Only send to clients whose connection is actually open
     if (client.readyState === WebSocket.OPEN) {
       client.send(message);
       sent++;
     }
   }
   return sent;
+}
+
+// Send the cached vehicles to a single client (used right when they connect).
+export function sendSnapshot(socket: WebSocket) {
+  if (lastVehicles.length === 0) return;
+  socket.send(JSON.stringify({
+    type: "vehicles",
+    count: lastVehicles.length,
+    data: lastVehicles,
+  }));
 }
