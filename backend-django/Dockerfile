@@ -19,6 +19,7 @@ COPY . .
 # Django/gunicorn will listen on 8000.
 EXPOSE 8000
 
-# Start the app with gunicorn (production WSGI server).
-# transitpulse.wsgi:application points at your project's wsgi.py.
-CMD ["gunicorn", "transitpulse.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
+# Copy and use the entrypoint (runs migrations, then starts gunicorn).
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+CMD ["/entrypoint.sh"]
