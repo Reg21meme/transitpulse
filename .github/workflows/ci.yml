@@ -1,0 +1,41 @@
+name: CI
+
+# Run on every push and pull request to main.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-images:
+    name: Build Docker images
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Django image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend-django
+          push: false
+          tags: transitpulse-django:ci
+
+      - name: Build Node image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend-node
+          push: false
+          tags: transitpulse-node:ci
+
+      - name: Build frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: false
+          tags: transitpulse-frontend:ci
