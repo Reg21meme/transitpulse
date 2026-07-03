@@ -18,9 +18,12 @@ function delayColor(mins: number): string {
 }
 
 export default function DelayHeatmap({ data }: Props) {
+  if (data.length === 0) {
+    return <p className="mt-2 text-sm text-neutral-500">No delay data yet — run the ingestion loop to collect arrivals.</p>;
+  }
   // Which hours actually appear in the data (sorted).
   const hours = Array.from(new Set(data.map((d) => d.hour))).sort((a, b) => a - b);
-
+  
   // Fast lookup: "route|hour" -> cell.
   const cellMap = new Map<string, DelayByLineHour>();
   for (const d of data) cellMap.set(`${d.route_id}|${d.hour}`, d);

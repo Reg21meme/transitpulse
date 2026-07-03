@@ -56,6 +56,8 @@ async function getJSON<T>(path: string): Promise<T> {
 export const getDelaysByLineHour = () =>
   getJSON<DelayByLineHour[]>("/analytics/delays/by-line-hour/");
 
+export const getDashboard = () =>
+  getJSON<DashboardData>("/analytics/dashboard/");
 // ---- Endpoint functions ----
 
 export const getReliability = () =>
@@ -74,4 +76,11 @@ export interface DelayByLineHour {
   hour: number;
   count: number;
   avg_delay_minutes: number;
+}
+export interface DashboardData {
+  reliability: ReliabilityResponse;
+  delays_by_line: DelayByLine[];
+  delays_by_stop: DelayByStop[];
+  delays_by_hour: DelayByHour[];
+  delays_by_line_hour: DelayByLineHour[];
 }

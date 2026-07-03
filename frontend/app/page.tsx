@@ -1,5 +1,4 @@
 "use client";
-
 import dynamic from "next/dynamic";
 
 const LiveMap = dynamic(() => import("@/components/LiveMap"), {
@@ -9,7 +8,7 @@ const LiveMap = dynamic(() => import("@/components/LiveMap"), {
 
 export default function Home() {
   return (
-    <main>
+    <main className="flex-1 min-h-0">
       <LiveMap />
     </main>
   );

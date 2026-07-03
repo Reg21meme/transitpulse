@@ -28,7 +28,7 @@ export default function LiveMap() {
   if (!mounted) return null;
 
   return (
-    <div style={{ position: "relative", height: "100vh", width: "100%" }}>
+    <div style={{ position: "relative", height: "calc(100vh - 49px)", width: "100%" }}>
       <div
         style={{
           position: "absolute",
@@ -53,7 +53,7 @@ export default function LiveMap() {
         maxZoom={16}
         maxBounds={MBTA_BOUNDS}
         maxBoundsViscosity={1.0}
-        style={{ height: "100vh", width: "100%", background: "#1a1a1a" }}
+        style={{ height: "calc(100vh - 49px)", width: "100%", background: "#1a1a1a" }}
       >
         <TileLayer
           attribution='&copy; OpenStreetMap &copy; CARTO'

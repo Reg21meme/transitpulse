@@ -8,4 +8,5 @@ urlpatterns = [
     path("analytics/delays/by-stop/", views.delays_by_stop_view, name="delays-by-stop"),
     path("analytics/delays/by-hour/", views.delays_by_hour_view, name="delays-by-hour"),
     path("analytics/delays/by-line-hour/", views.delays_by_line_hour_view, name="delays-by-line-hour"),
+    path("analytics/dashboard/", views.dashboard_view, name="dashboard"),
 ]

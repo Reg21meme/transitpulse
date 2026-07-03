@@ -18,9 +18,12 @@ interface Props {
 }
 
 export default function ReliabilityChart({ data }: Props) {
+  if (data.length === 0) {
+    return <p className="mt-2 text-sm text-neutral-500">No reliability data yet — run the ingestion loop to collect arrivals.</p>;
+  }
   // Sort best-to-worst so the chart reads top-down.
   const sorted = [...data].sort((a, b) => b.reliability_pct - a.reliability_pct);
-
+  
   return (
     <div className="mt-2 w-full max-w-2xl" style={{ height: 320 }}>
       <ResponsiveContainer width="100%" height="100%">
